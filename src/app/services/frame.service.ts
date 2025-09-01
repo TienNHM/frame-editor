@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { Frame, FrameCategory } from '../models/frame.model';
 
 @Injectable({
@@ -12,73 +14,70 @@ export class FrameService {
   frames$ = this.framesSubject.asObservable();
   categories$ = this.categoriesSubject.asObservable();
 
-  constructor() {
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.initializeFrames();
   }
 
   private initializeFrames(): void {
-    // Dữ liệu mẫu cho frames
-    const sampleFrames: Frame[] = [
-      {
-        id: 'frame-1',
-        name: 'Khung Quốc Khánh',
-        category: 'quoc-khanh',
-        imageUrl: '/assets/frames/frame1.svg',
-        thumbnailUrl: '/assets/frames/frame1.svg',
-        width: 800,
-        height: 800,
-        description: 'Khung ảnh chào mừng Quốc Khánh 2/9',
-        tags: ['quốc khánh', 'lễ hội', 'việt nam'],
-        isPopular: true
-      },
-      {
-        id: 'frame-2',
-        name: 'Khung Tết Nguyên Đán',
-        category: 'tet',
-        imageUrl: '/assets/frames/frame2.svg',
-        thumbnailUrl: '/assets/frames/frame2.svg',
-        width: 800,
-        height: 800,
-        description: 'Khung ảnh chúc mừng năm mới',
-        tags: ['tết', 'năm mới', 'truyền thống'],
-        isPopular: true
-      },
-      {
-        id: 'frame-3',
-        name: 'Khung Sinh Nhật',
-        category: 'sinh-nhat',
-        imageUrl: '/assets/frames/frame3.svg',
-        thumbnailUrl: '/assets/frames/frame3.svg',
-        width: 800,
-        height: 800,
-        description: 'Khung ảnh chúc mừng sinh nhật',
-        tags: ['sinh nhật', 'tiệc tụng', 'vui vẻ']
-      }
-    ];
+    // Chỉ load frames khi ở browser (không phải SSR)
+    if (isPlatformBrowser(this.platformId)) {
+      // Load frames từ JSON file
+      this.http.get<{frames: Frame[]}>('/assets/frames/sample-frames.json').subscribe({
+        next: (data) => {
+          const frames = data.frames;
+          this.framesSubject.next(frames);
+          
+          // Tạo categories từ frames
+          const categoryMap = new Map<string, FrameCategory>();
+          
+          frames.forEach(frame => {
+            if (!categoryMap.has(frame.category)) {
+              categoryMap.set(frame.category, {
+                id: frame.category,
+                name: this.getCategoryDisplayName(frame.category),
+                description: this.getCategoryDescription(frame.category),
+                frames: []
+              });
+            }
+            categoryMap.get(frame.category)!.frames.push(frame);
+          });
+          
+          const categories = Array.from(categoryMap.values());
+          this.categoriesSubject.next(categories);
+        },
+        error: (error) => {
+          console.error('Error loading frames:', error);
+          // Fallback to empty data
+          this.framesSubject.next([]);
+          this.categoriesSubject.next([]);
+        }
+      });
+    } else {
+      // Trên server, khởi tạo với dữ liệu trống
+      this.framesSubject.next([]);
+      this.categoriesSubject.next([]);
+    }
+  }
 
-    const categories: FrameCategory[] = [
-      {
-        id: 'quoc-khanh',
-        name: 'Quốc Khánh',
-        description: 'Khung ảnh chào mừng Quốc Khánh Việt Nam',
-        frames: sampleFrames.filter(f => f.category === 'quoc-khanh')
-      },
-      {
-        id: 'tet',
-        name: 'Tết Nguyên Đán',
-        description: 'Khung ảnh chúc mừng năm mới',
-        frames: sampleFrames.filter(f => f.category === 'tet')
-      },
-      {
-        id: 'sinh-nhat',
-        name: 'Sinh Nhật',
-        description: 'Khung ảnh sinh nhật vui vẻ',
-        frames: sampleFrames.filter(f => f.category === 'sinh-nhat')
-      }
-    ];
+  private getCategoryDisplayName(categoryId: string): string {
+    const names: {[key: string]: string} = {
+      'quoc-khanh': 'Quốc Khánh',
+      'tet': 'Tết Nguyên Đán',
+      'sinh-nhat': 'Sinh Nhật'
+    };
+    return names[categoryId] || categoryId;
+  }
 
-    this.framesSubject.next(sampleFrames);
-    this.categoriesSubject.next(categories);
+  private getCategoryDescription(categoryId: string): string {
+    const descriptions: {[key: string]: string} = {
+      'quoc-khanh': 'Khung ảnh chào mừng Quốc Khánh Việt Nam',
+      'tet': 'Khung ảnh chúc mừng năm mới',
+      'sinh-nhat': 'Khung ảnh sinh nhật vui vẻ'
+    };
+    return descriptions[categoryId] || '';
   }
 
   getFrameById(id: string): Frame | undefined {

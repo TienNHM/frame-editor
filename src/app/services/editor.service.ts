@@ -115,7 +115,14 @@ export class EditorService {
           evented: false
         });
 
-        // Đưa frame lên trên cùng
+        // Xóa frame cũ nếu có
+        const existingFrames = this.canvas.getObjects().filter(obj => obj.get('isFrame'));
+        existingFrames.forEach(frame => this.canvas!.remove(frame));
+        
+        // Đánh dấu object này là frame
+        frame.set('isFrame', true);
+        
+        // Thêm frame và đưa lên trên cùng (trên ảnh)
         this.canvas.add(frame);
         this.canvas.bringObjectToFront(frame);
         this.canvas.renderAll();

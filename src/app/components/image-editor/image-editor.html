@@ -9,19 +9,21 @@
       
       <div class="editor-actions flex gap-2">
         <p-button 
-          label="Đặt lại"
           icon="pi pi-refresh"
           class="p-button-outlined p-button-sm"
           (onClick)="resetEditor()"
-          [disabled]="!editorState.isDirty">
+          [disabled]="!editorState.isDirty"
+          pTooltip="Đặt lại"
+          tooltipPosition="bottom">
         </p-button>
         
         <p-button 
-          label="Tải xuống"
           icon="pi pi-download"
           class="p-button-sm"
           (onClick)="downloadImage()"
-          [disabled]="!canDownload()">
+          [disabled]="!canDownload()"
+          pTooltip="Tải xuống"
+          tooltipPosition="bottom">
         </p-button>
       </div>
     </div>
@@ -50,7 +52,9 @@
               icon="pi pi-minus"
               class="p-button-text p-button-sm"
               (onClick)="zoomOut()"
-              [disabled]="editorState.zoom <= 0.1">
+              [disabled]="editorState.zoom <= 0.1"
+              pTooltip="Thu nhỏ"
+              tooltipPosition="bottom">
             </p-button>
             
             <span class="text-sm font-medium text-gray-600 min-w-[3rem] text-center">
@@ -61,7 +65,9 @@
               icon="pi pi-plus"
               class="p-button-text p-button-sm"
               (onClick)="zoomIn()"
-              [disabled]="editorState.zoom >= 3">
+              [disabled]="editorState.zoom >= 3"
+              pTooltip="Phóng to"
+              tooltipPosition="bottom">
             </p-button>
           </div>
         </div>
@@ -88,16 +94,18 @@
               <label class="block text-sm font-medium text-gray-700 mb-3">Xoay ảnh</label>
               <div class="flex gap-2">
                 <p-button 
-                  icon="pi pi-undo"
+                  icon="pi pi-replay"
                   class="p-button-outlined p-button-sm flex-1"
                   (onClick)="rotateImage(-90)"
-                  pTooltip="Xoay trái 90°">
+                  pTooltip="Xoay trái 90°"
+                  tooltipPosition="top">
                 </p-button>
                 <p-button 
-                  icon="pi pi-redo"
+                  icon="pi pi-refresh"
                   class="p-button-outlined p-button-sm flex-1"
                   (onClick)="rotateImage(90)"
-                  pTooltip="Xoay phải 90°">
+                  pTooltip="Xoay phải 90°"
+                  tooltipPosition="top">
                 </p-button>
               </div>
             </div>
@@ -107,16 +115,18 @@
               <label class="block text-sm font-medium text-gray-700 mb-3">Lật ảnh</label>
               <div class="flex gap-2">
                 <p-button 
-                  label="Lật ngang"
                   icon="pi pi-arrows-h"
                   class="p-button-outlined p-button-sm flex-1"
-                  (onClick)="flipImage('horizontal')">
+                  (onClick)="flipImage('horizontal')"
+                  pTooltip="Lật ngang"
+                  tooltipPosition="top">
                 </p-button>
                 <p-button 
-                  label="Lật dọc"
                   icon="pi pi-arrows-v"
                   class="p-button-outlined p-button-sm flex-1"
-                  (onClick)="flipImage('vertical')">
+                  (onClick)="flipImage('vertical')"
+                  pTooltip="Lật dọc"
+                  tooltipPosition="top">
                 </p-button>
               </div>
             </div>
@@ -128,47 +138,65 @@
                 <p-button 
                   icon="pi pi-arrow-up-left"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(-10, -10)">
+                  (onClick)="moveObject(-10, -10)"
+                  pTooltip="Di chuyển lên trái"
+                  tooltipPosition="top">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-up"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(0, -10)">
+                  (onClick)="moveObject(0, -10)"
+                  pTooltip="Di chuyển lên"
+                  tooltipPosition="top">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-up-right"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(10, -10)">
+                  (onClick)="moveObject(10, -10)"
+                  pTooltip="Di chuyển lên phải"
+                  tooltipPosition="top">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-left"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(-10, 0)">
+                  (onClick)="moveObject(-10, 0)"
+                  pTooltip="Di chuyển trái"
+                  tooltipPosition="left">
                 </p-button>
                 <p-button 
                   icon="pi pi-stop"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="centerObject()">
+                  (onClick)="centerObject()"
+                  pTooltip="Căn giữa"
+                  tooltipPosition="top">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-right"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(10, 0)">
+                  (onClick)="moveObject(10, 0)"
+                  pTooltip="Di chuyển phải"
+                  tooltipPosition="right">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-down-left"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(-10, 10)">
+                  (onClick)="moveObject(-10, 10)"
+                  pTooltip="Di chuyển xuống trái"
+                  tooltipPosition="bottom">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-down"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(0, 10)">
+                  (onClick)="moveObject(0, 10)"
+                  pTooltip="Di chuyển xuống"
+                  tooltipPosition="bottom">
                 </p-button>
                 <p-button 
                   icon="pi pi-arrow-down-right"
                   class="p-button-outlined p-button-sm"
-                  (onClick)="moveObject(10, 10)">
+                  (onClick)="moveObject(10, 10)"
+                  pTooltip="Di chuyển xuống phải"
+                  tooltipPosition="bottom">
                 </p-button>
               </div>
             </div>

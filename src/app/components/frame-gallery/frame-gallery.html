@@ -48,12 +48,14 @@
         *ngFor="let frame of popularFrames" 
         class="frame-item cursor-pointer group"
         (click)="selectFrame(frame)">
-        <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200">
-          <img 
-            [src]="frame.thumbnailUrl" 
-            [alt]="frame.name"
-            class="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-200"
-            (error)="onImageError($event)">
+        <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200 bg-gray-50">
+          <div class="aspect-square flex items-center justify-center p-2">
+            <img 
+              [src]="frame.thumbnailUrl" 
+              [alt]="frame.name"
+              class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-200"
+              (error)="onImageError($event)">
+          </div>
           <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
             <i class="pi pi-plus text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
           </div>
@@ -77,12 +79,14 @@
           *ngFor="let frame of category.frames" 
           class="frame-item cursor-pointer group"
           (click)="selectFrame(frame)">
-          <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200">
-            <img 
-              [src]="frame.thumbnailUrl" 
-              [alt]="frame.name"
-              class="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-200"
-              (error)="onImageError($event)">
+          <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200 bg-gray-50">
+            <div class="aspect-square flex items-center justify-center p-2">
+              <img 
+                [src]="frame.thumbnailUrl" 
+                [alt]="frame.name"
+                class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-200"
+                (error)="onImageError($event)">
+            </div>
             <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
               <i class="pi pi-plus text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
             </div>
