@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:gh-pages": "ng build --configuration production --base-href /frame-editor/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:frame-editor": "node dist/frame-editor/server/server.mjs"

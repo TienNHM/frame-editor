@@ -1,59 +1,117 @@
-# FrameEditor
+# Frame Editor 🖼️
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+Ứng dụng chỉnh sửa ảnh với khung đẹp được xây dựng bằng Angular 20 và PrimeNG.
 
-## Development server
+## ✨ Tính năng
 
-To start a local development server, run:
+- 📸 **Tải lên ảnh**: Hỗ trợ JPG, PNG, WEBP
+- 🖼️ **Thư viện khung**: Nhiều khung đẹp theo chủ đề
+- ⬆️ **Upload khung tùy chỉnh**: Tải lên khung riêng của bạn
+- 🎨 **Chỉnh sửa**: Xoay, lật, zoom, di chuyển
+- 💾 **Xuất ảnh**: Download với chất lượng cao
+- 📱 **Responsive**: Hoạt động tốt trên mọi thiết bị
 
-```bash
-ng serve
-```
+## 🚀 Demo
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+**Live Demo**: [https://tiennhm.github.io/frame-editor/](https://tiennhm.github.io/frame-editor/)
 
-## Code scaffolding
+## 🛠️ Công nghệ
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Angular 20** - Framework chính
+- **PrimeNG 20** - UI Components với Tailwind CSS
+- **Fabric.js** - Canvas manipulation
+- **TypeScript** - Type safety
+- **SCSS** - Styling
+- **GitHub Pages** - Deployment
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## 📦 Cài đặt
 
 ```bash
-ng build
+# Clone repository
+git clone https://github.com/tiennhm/frame-editor.git
+cd frame-editor
+
+# Cài đặt dependencies
+npm install
+
+# Chạy development server
+npm start
+
+# Mở http://localhost:4200
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🏗️ Build & Deploy
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
+### Development
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
+### GitHub Pages
 ```bash
-ng e2e
+# Build cho GitHub Pages
+npm run build:gh-pages
+
+# Hoặc push lên main branch để auto deploy
+git push origin main
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📁 Cấu trúc dự án
 
-## Additional Resources
+```
+src/
+├── app/
+│   ├── components/
+│   │   ├── frame-gallery/     # Thư viện khung ảnh
+│   │   ├── image-editor/      # Editor chính
+│   │   ├── image-upload/      # Upload ảnh
+│   │   └── header/           # Header navigation
+│   ├── services/
+│   │   ├── editor.service.ts  # Canvas operations
+│   │   └── frame.service.ts   # Frame management
+│   └── models/               # TypeScript interfaces
+├── assets/
+│   └── frames/              # Sample frames
+└── styles.scss             # Global styles
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🎯 Cách sử dụng
+
+1. **Tải ảnh lên**: Click "Tải ảnh lên" và chọn file
+2. **Chọn khung**: Browse thư viện hoặc upload khung riêng
+3. **Chỉnh sửa**: Sử dụng tools để điều chỉnh ảnh
+4. **Xuất ảnh**: Click "Tải xuống" để lưu kết quả
+
+## 🔧 Cấu hình GitHub Pages
+
+1. **Tạo repository** trên GitHub với tên `frame-editor`
+2. **Push code** lên main branch
+3. **Vào Settings** → Pages → Source: GitHub Actions
+4. **Workflow tự động chạy** và deploy
+
+## 📝 Scripts
+
+- `npm start` - Development server
+- `npm run build` - Production build
+- `npm run build:gh-pages` - Build cho GitHub Pages
+- `npm test` - Run tests
+- `npm run watch` - Build với watch mode
+
+## 🤝 Đóng góp
+
+1. Fork repository
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Mở Pull Request
+
+## 📄 License
+
+Dự án này được phân phối dưới MIT License. Xem `LICENSE` để biết thêm thông tin.
+
+## 🙏 Acknowledgments
+
+- [Angular](https://angular.io/) - Framework
+- [PrimeNG](https://primeng.org/) - UI Library
+- [Fabric.js](http://fabricjs.com/) - Canvas Library
+- [Tailwind CSS](https://tailwindcss.com/) - CSS Framework
