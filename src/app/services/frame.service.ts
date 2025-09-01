@@ -24,8 +24,8 @@ export class FrameService {
   private initializeFrames(): void {
     // Chỉ load frames khi ở browser (không phải SSR)
     if (isPlatformBrowser(this.platformId)) {
-      // Load frames từ JSON file
-      this.http.get<{frames: Frame[]}>('/assets/frames/sample-frames.json').subscribe({
+              // Load frames từ JSON file
+        this.http.get<{frames: Frame[]}>('./assets/frames/sample-frames.json').subscribe({
         next: (data) => {
           const frames = data.frames;
           this.framesSubject.next(frames);

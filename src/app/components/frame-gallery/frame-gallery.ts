@@ -129,9 +129,15 @@ export class FrameGallery implements OnInit {
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
+    // Validate file size (max 2MB for localStorage)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File quá lớn. Vui lòng chọn file nhỏ hơn 2MB để tránh lỗi storage');
+      return;
+    }
+
+    // Check localStorage space before upload
+    if (!this.checkStorageSpace()) {
+      alert('Bộ nhớ đã đầy. Vui lòng xóa một số khung cũ trước khi tải lên khung mới.');
       return;
     }
 
@@ -139,31 +145,34 @@ export class FrameGallery implements OnInit {
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
       
-      // Create custom frame object
-      const customFrame: Frame = {
-        id: `custom-${Date.now()}`,
-        name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-        category: 'custom',
-        imageUrl: dataUrl,
-        thumbnailUrl: dataUrl,
-        width: 800,
-        height: 800,
-        description: 'Khung ảnh tự tải lên',
-        tags: ['custom', 'upload'],
-        isPopular: false
-      };
+      // Compress image if too large for storage
+      this.compressImageIfNeeded(dataUrl, (compressedDataUrl: string) => {
+        // Create custom frame object
+        const customFrame: Frame = {
+          id: `custom-${Date.now()}`,
+          name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+          category: 'custom',
+          imageUrl: compressedDataUrl,
+          thumbnailUrl: compressedDataUrl,
+          width: 800,
+          height: 800,
+          description: 'Khung ảnh tự tải lên',
+          tags: ['custom', 'upload'],
+          isPopular: false
+        };
 
-      // Add to custom frames
-      this.customFrames.push(customFrame);
-      
-      // Save to localStorage for persistence
-      this.saveCustomFramesToStorage();
-      
-      // Clear input
-      input.value = '';
-      
-      // Show success message
-      alert('Đã tải lên khung ảnh thành công!');
+        // Add to custom frames
+        this.customFrames.push(customFrame);
+        
+        // Save to localStorage for persistence
+        this.saveCustomFramesToStorage();
+        
+        // Clear input
+        input.value = '';
+        
+        // Show success message
+        alert('Đã tải lên khung ảnh thành công!');
+      });
     };
 
     reader.readAsDataURL(file);
@@ -180,9 +189,30 @@ export class FrameGallery implements OnInit {
 
   private saveCustomFramesToStorage(): void {
     try {
+      const data = JSON.stringify(this.customFrames);
+      
+      // Check if data size is reasonable (max 4MB for safety)
+      if (data.length > 4 * 1024 * 1024) {
+        console.warn('Custom frames data too large, removing oldest frames');
+        // Keep only the 5 most recent frames
+        this.customFrames = this.customFrames.slice(-5);
+      }
+      
       localStorage.setItem('customFrames', JSON.stringify(this.customFrames));
     } catch (error) {
       console.error('Error saving custom frames to localStorage:', error);
+      
+      if (error instanceof DOMException && error.code === 22) {
+        // QuotaExceededError - try to free up space
+        alert('Bộ nhớ đã đầy. Đang xóa khung cũ để tạo chỗ trống...');
+        this.customFrames = this.customFrames.slice(-3); // Keep only 3 most recent
+        try {
+          localStorage.setItem('customFrames', JSON.stringify(this.customFrames));
+        } catch (retryError) {
+          console.error('Failed to save even after cleanup:', retryError);
+          alert('Không thể lưu khung do giới hạn bộ nhớ. Vui lòng xóa một số khung cũ.');
+        }
+      }
     }
   }
 
@@ -195,6 +225,71 @@ export class FrameGallery implements OnInit {
     } catch (error) {
       console.error('Error loading custom frames from localStorage:', error);
       this.customFrames = [];
+      // Clear corrupted data
+      localStorage.removeItem('customFrames');
     }
+  }
+
+  private checkStorageSpace(): boolean {
+    try {
+      // Try to store a test string to check available space
+      const testKey = 'storageTest';
+      const testData = 'x'.repeat(100 * 1024); // 100KB test
+      localStorage.setItem(testKey, testData);
+      localStorage.removeItem(testKey);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private compressImageIfNeeded(dataUrl: string, callback: (compressed: string) => void): void {
+    // If data URL is smaller than 500KB, use as-is
+    if (dataUrl.length < 500 * 1024) {
+      callback(dataUrl);
+      return;
+    }
+
+    // Create canvas for compression
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      
+      // Calculate new dimensions (max 800x800)
+      const maxSize = 800;
+      let { width, height } = img;
+      
+      if (width > height) {
+        if (width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Try different quality levels until size is acceptable
+      let quality = 0.8;
+      let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      while (compressedDataUrl.length > 300 * 1024 && quality > 0.3) {
+        quality -= 0.1;
+        compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      }
+      
+      callback(compressedDataUrl);
+    };
+    
+    img.src = dataUrl;
   }
 }

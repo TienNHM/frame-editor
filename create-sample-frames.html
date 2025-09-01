@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Sample Frames</title>
+</head>
+<body>
+    <h1>Creating Sample Frame PNGs...</h1>
+    <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc;"></canvas>
+    <div id="downloads"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const downloads = document.getElementById('downloads');
+
+        const frames = [
+            {
+                name: 'frame1',
+                title: 'Khung Quốc Khánh',
+                colors: ['#da020e', '#ffff00'], // Đỏ và vàng
+                pattern: 'flag'
+            },
+            {
+                name: 'frame2', 
+                title: 'Khung Tết',
+                colors: ['#ff6b35', '#f7931e'], // Cam đỏ
+                pattern: 'flowers'
+            },
+            {
+                name: 'frame3',
+                title: 'Khung Sinh Nhật', 
+                colors: ['#ff69b4', '#87ceeb'], // Hồng và xanh
+                pattern: 'birthday'
+            },
+            {
+                name: 'frame4',
+                title: 'Khung Cờ Đỏ Sao Vàng',
+                colors: ['#da020e', '#ffff00'], // Đỏ và vàng
+                pattern: 'star'
+            },
+            {
+                name: 'frame5',
+                title: 'Khung Hoa Mai',
+                colors: ['#ffd700', '#ff8c00'], // Vàng mai
+                pattern: 'mai'
+            },
+            {
+                name: 'frame6',
+                title: 'Khung Bánh Kem',
+                colors: ['#ffb6c1', '#fff8dc'], // Hồng nhạt
+                pattern: 'cake'
+            }
+        ];
+
+        function createFrame(frameConfig) {
+            // Clear canvas
+            ctx.clearRect(0, 0, 800, 800);
+            
+            // Create transparent background
+            ctx.fillStyle = 'rgba(0,0,0,0)';
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // Create frame border
+            const borderWidth = 60;
+            const gradient = ctx.createLinearGradient(0, 0, 800, 800);
+            gradient.addColorStop(0, frameConfig.colors[0]);
+            gradient.addColorStop(1, frameConfig.colors[1]);
+            
+            ctx.fillStyle = gradient;
+            
+            // Outer border
+            ctx.fillRect(0, 0, 800, borderWidth); // Top
+            ctx.fillRect(0, 0, borderWidth, 800); // Left  
+            ctx.fillRect(0, 800-borderWidth, 800, borderWidth); // Bottom
+            ctx.fillRect(800-borderWidth, 0, borderWidth, 800); // Right
+            
+            // Add decorative elements based on pattern
+            ctx.fillStyle = frameConfig.colors[1];
+            
+            switch(frameConfig.pattern) {
+                case 'flag':
+                    // Add stars in corners
+                    drawStar(ctx, 30, 30, 15);
+                    drawStar(ctx, 770, 30, 15);
+                    drawStar(ctx, 30, 770, 15);
+                    drawStar(ctx, 770, 770, 15);
+                    break;
+                    
+                case 'flowers':
+                    // Add flower patterns
+                    for(let i = 0; i < 8; i++) {
+                        const angle = (i * Math.PI * 2) / 8;
+                        const x = 400 + Math.cos(angle) * 350;
+                        const y = 400 + Math.sin(angle) * 350;
+                        drawFlower(ctx, x, y, 20);
+                    }
+                    break;
+                    
+                case 'birthday':
+                    // Add balloons
+                    drawBalloon(ctx, 100, 100);
+                    drawBalloon(ctx, 700, 100);
+                    drawBalloon(ctx, 100, 700);
+                    drawBalloon(ctx, 700, 700);
+                    break;
+                    
+                case 'star':
+                    // Large center star
+                    ctx.fillStyle = frameConfig.colors[1];
+                    drawStar(ctx, 400, 400, 40);
+                    break;
+                    
+                case 'mai':
+                    // Mai flowers
+                    for(let i = 0; i < 12; i++) {
+                        const angle = (i * Math.PI * 2) / 12;
+                        const x = 400 + Math.cos(angle) * 320;
+                        const y = 400 + Math.sin(angle) * 320;
+                        drawMaiFlower(ctx, x, y);
+                    }
+                    break;
+                    
+                case 'cake':
+                    // Cake decorations
+                    drawCake(ctx, 400, 50);
+                    drawCake(ctx, 400, 750);
+                    break;
+            }
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        function drawStar(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.beginPath();
+            for(let i = 0; i < 5; i++) {
+                const angle = (i * Math.PI * 2) / 5 - Math.PI/2;
+                const x1 = Math.cos(angle) * size;
+                const y1 = Math.sin(angle) * size;
+                const x2 = Math.cos(angle + Math.PI/5) * size * 0.5;
+                const y2 = Math.sin(angle + Math.PI/5) * size * 0.5;
+                
+                if(i === 0) ctx.moveTo(x1, y1);
+                else ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        function drawFlower(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            for(let i = 0; i < 6; i++) {
+                ctx.rotate(Math.PI / 3);
+                ctx.beginPath();
+                ctx.arc(0, -size/2, size/3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        
+        function drawBalloon(ctx, x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.beginPath();
+            ctx.arc(0, 0, 15, 0, Math.PI * 2);
+            ctx.fill();
+            // String
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 15);
+            ctx.lineTo(0, 40);
+            ctx.stroke();
+            ctx.restore();
+        }
+        
+        function drawMaiFlower(ctx, x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+            for(let i = 0; i < 5; i++) {
+                ctx.rotate(Math.PI * 2 / 5);
+                ctx.beginPath();
+                ctx.arc(0, -8, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        
+        function drawCake(ctx, x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+            // Cake base
+            ctx.fillRect(-20, -10, 40, 20);
+            // Candles
+            ctx.fillRect(-10, -20, 3, 10);
+            ctx.fillRect(0, -20, 3, 10);
+            ctx.fillRect(10, -20, 3, 10);
+            ctx.restore();
+        }
+
+        // Generate all frames
+        frames.forEach((frameConfig, index) => {
+            setTimeout(() => {
+                const dataUrl = createFrame(frameConfig);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `${frameConfig.name}.png`;
+                link.href = dataUrl;
+                link.textContent = `Download ${frameConfig.title}`;
+                link.style.display = 'block';
+                link.style.margin = '10px 0';
+                
+                downloads.appendChild(link);
+                
+                console.log(`Created ${frameConfig.name}.png`);
+            }, index * 100);
+        });
+    </script>
+</body>
+</html>
