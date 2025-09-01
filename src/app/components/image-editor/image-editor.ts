@@ -206,9 +206,14 @@ export class ImageEditor implements AfterViewInit, OnDestroy {
       options.height = this.customHeight;
     }
 
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-    const filename = `frame-avatar-${timestamp}`;
-    
-    this.editorService.downloadCanvas(filename, options);
+    try {
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+      const filename = `frame-avatar-${timestamp}`;
+      
+      this.editorService.downloadCanvas(filename, options);
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Lỗi: ' + (error as Error).message);
+    }
   }
 }

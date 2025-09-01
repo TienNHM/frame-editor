@@ -1,8 +1,30 @@
 <div class="frame-gallery-container">
   <!-- Header -->
   <div class="gallery-header mb-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">Chọn khung hình</h2>
-    <p class="text-gray-600">Chọn khung hình phù hợp cho ảnh của bạn</p>
+    <div class="flex justify-between items-start">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Chọn khung hình</h2>
+        <p class="text-gray-600">Chọn khung hình phù hợp cho ảnh của bạn</p>
+      </div>
+      <div class="flex gap-2">
+        <p-button 
+          icon="pi pi-upload"
+          label="Tải lên khung"
+          class="p-button-outlined p-button-sm"
+          (onClick)="triggerFrameUpload()"
+          pTooltip="Tải lên khung ảnh của bạn (PNG với nền trong suốt)"
+          tooltipPosition="bottom">
+        </p-button>
+      </div>
+    </div>
+    
+    <!-- Hidden file input -->
+    <input 
+      #frameUploadInput
+      type="file" 
+      accept="image/png,image/jpg,image/jpeg,image/webp"
+      (change)="onFrameUpload($event)"
+      class="hidden">
   </div>
 
   <!-- Search and Filter -->
@@ -11,7 +33,7 @@
       <!-- Search -->
       <div class="flex-1">
         <span class="p-input-icon-left w-full">
-          <i class="pi pi-search"></i>
+          <!-- <i class="pi pi-search"></i> -->
           <input 
             type="text" 
             pInputText 
@@ -33,6 +55,43 @@
           optionValue="value"
           class="w-full">
         </p-select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Uploaded Frames -->
+  <div *ngIf="customFrames.length > 0 && !searchQuery && !selectedCategory" class="custom-section mb-8">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+      <i class="pi pi-user text-primary-500 mr-2"></i>
+      Khung của bạn
+      <span class="text-sm text-gray-500 ml-2">({{ customFrames.length }})</span>
+    </h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div 
+        *ngFor="let frame of customFrames" 
+        class="frame-item cursor-pointer group relative"
+        (click)="selectFrame(frame)">
+        <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200 bg-gray-50">
+          <div class="aspect-square flex items-center justify-center p-2">
+            <img 
+              [src]="frame.thumbnailUrl" 
+              [alt]="frame.name"
+              class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-200"
+              (error)="onImageError($event)">
+          </div>
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+            <i class="pi pi-plus text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
+          </div>
+          
+          <!-- Delete button -->
+          <button 
+            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+            (click)="deleteCustomFrame(frame, $event)"
+            title="Xóa khung này">
+            <i class="pi pi-times text-xs"></i>
+          </button>
+        </div>
+        <p class="text-xs text-gray-600 mt-2 text-center truncate">{{ frame.name }}</p>
       </div>
     </div>
   </div>

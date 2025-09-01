@@ -54,7 +54,7 @@ export class EditorService {
         return;
       }
 
-      Image.fromURL(imageUrl).then((img) => {
+      Image.fromURL(imageUrl, { crossOrigin: 'anonymous' }).then((img) => {
         if (!this.canvas) return;
 
         // Tính toán kích thước để fit vào canvas
@@ -100,7 +100,7 @@ export class EditorService {
         return;
       }
 
-      Image.fromURL(frameUrl).then((frame) => {
+      Image.fromURL(frameUrl, { crossOrigin: 'anonymous' }).then((frame) => {
         if (!this.canvas) return;
 
         const canvasWidth = this.canvas.getWidth();
@@ -192,15 +192,20 @@ export class EditorService {
   exportCanvas(options: ExportOptions = { format: 'png', quality: 1 }): string {
     if (!this.canvas) return '';
 
-    const dataURL = this.canvas.toDataURL({
-      format: options.format,
-      quality: options.quality,
-      multiplier: 1,
-      width: options.width,
-      height: options.height
-    });
+    try {
+      const dataURL = this.canvas.toDataURL({
+        format: options.format,
+        quality: options.quality,
+        multiplier: 1,
+        width: options.width,
+        height: options.height
+      });
 
-    return dataURL;
+      return dataURL;
+    } catch (error) {
+      console.error('Canvas export error:', error);
+      throw new Error('Không thể xuất ảnh do giới hạn bảo mật CORS. Vui lòng sử dụng ảnh từ cùng domain.');
+    }
   }
 
   downloadCanvas(filename: string = 'frame-avatar', options: ExportOptions = { format: 'png', quality: 1 }): void {
