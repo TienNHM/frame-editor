@@ -1,0 +1,119 @@
+<div class="frame-gallery-container">
+  <!-- Header -->
+  <div class="gallery-header mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Chọn khung hình</h2>
+    <p class="text-gray-600">Chọn khung hình phù hợp cho ảnh của bạn</p>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="gallery-controls mb-6">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Search -->
+      <div class="flex-1">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input 
+            type="text" 
+            pInputText 
+            placeholder="Tìm kiếm khung hình..."
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            class="w-full">
+        </span>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="sm:w-48">
+        <p-select 
+          [options]="categoryOptions"
+          [(ngModel)]="selectedCategory"
+          (onChange)="onCategoryChange()"
+          placeholder="Tất cả danh mục"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full">
+        </p-select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popular Frames -->
+  <div *ngIf="!searchQuery && !selectedCategory" class="popular-section mb-8">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+      <i class="pi pi-star-fill text-yellow-500 mr-2"></i>
+      Khung hình phổ biến
+    </h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div 
+        *ngFor="let frame of popularFrames" 
+        class="frame-item cursor-pointer group"
+        (click)="selectFrame(frame)">
+        <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200">
+          <img 
+            [src]="frame.thumbnailUrl" 
+            [alt]="frame.name"
+            class="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-200"
+            (error)="onImageError($event)">
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+            <i class="pi pi-plus text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
+          </div>
+        </div>
+        <p class="text-xs text-gray-600 mt-2 text-center truncate">{{ frame.name }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="categories-section">
+    <div *ngFor="let category of filteredCategories" class="category-group mb-8">
+      <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+        <i class="pi pi-folder text-primary-500 mr-2"></i>
+        {{ category.name }}
+        <span class="text-sm text-gray-500 ml-2">({{ category.frames.length }})</span>
+      </h3>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div 
+          *ngFor="let frame of category.frames" 
+          class="frame-item cursor-pointer group"
+          (click)="selectFrame(frame)">
+          <div class="frame-thumbnail relative overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary-500 transition-all duration-200">
+            <img 
+              [src]="frame.thumbnailUrl" 
+              [alt]="frame.name"
+              class="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-200"
+              (error)="onImageError($event)">
+            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+              <i class="pi pi-plus text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
+            </div>
+            
+            <!-- Popular badge -->
+            <div *ngIf="frame.isPopular" class="absolute top-1 right-1">
+              <i class="pi pi-star-fill text-yellow-400 text-xs"></i>
+            </div>
+          </div>
+          <p class="text-xs text-gray-600 mt-2 text-center truncate">{{ frame.name }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div *ngIf="filteredCategories.length === 0 && (searchQuery || selectedCategory)" class="no-results text-center py-12">
+    <i class="pi pi-search text-4xl text-gray-300 mb-4"></i>
+    <h3 class="text-lg font-semibold text-gray-600 mb-2">Không tìm thấy khung hình</h3>
+    <p class="text-gray-500 mb-4">Thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác</p>
+    <p-button 
+      label="Xóa bộ lọc" 
+      icon="pi pi-times"
+      class="p-button-outlined p-button-sm"
+      (onClick)="clearFilters()">
+    </p-button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state text-center py-12">
+    <div class="loading-spinner w-8 h-8 mx-auto mb-4"></div>
+    <p class="text-gray-600">Đang tải khung hình...</p>
+  </div>
+</div>

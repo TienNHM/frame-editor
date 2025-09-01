@@ -1,0 +1,142 @@
+<div class="app-container min-h-screen bg-gray-50">
+  <!-- Header -->
+  <app-header (createNewClicked)="onCreateNew()"></app-header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Welcome Section -->
+    <div *ngIf="currentStep === 'welcome'" class="welcome-section">
+      <div class="max-w-4xl mx-auto px-4 py-12 text-center">
+        <!-- Hero -->
+        <div class="hero mb-12">
+          <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            Tạo khung hình
+            <span class="text-primary-600">đẹp mắt</span>
+          </h1>
+          <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Công cụ tạo khung hình trực tuyến miễn phí. Tải lên ảnh của bạn, chọn khung yêu thích và tạo ra những tác phẩm tuyệt vời.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <p-button 
+              label="Bắt đầu tạo" 
+              icon="pi pi-plus"
+              class="p-button-lg"
+              (onClick)="startCreating()">
+            </p-button>
+            
+            <p-button 
+              label="Xem mẫu khung" 
+              icon="pi pi-eye"
+              class="p-button-outlined p-button-lg"
+              (onClick)="viewFrames()">
+            </p-button>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+          <div class="feature-card text-center">
+            <div class="feature-icon w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="pi pi-upload text-2xl text-primary-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Tải ảnh dễ dàng</h3>
+            <p class="text-gray-600">Kéo thả hoặc chọn file ảnh từ máy tính của bạn</p>
+          </div>
+          
+          <div class="feature-card text-center">
+            <div class="feature-icon w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="pi pi-palette text-2xl text-primary-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Khung đa dạng</h3>
+            <p class="text-gray-600">Hàng trăm mẫu khung hình đẹp cho mọi dịp</p>
+          </div>
+          
+          <div class="feature-card text-center">
+            <div class="feature-icon w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="pi pi-cog text-2xl text-primary-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Chỉnh sửa linh hoạt</h3>
+            <p class="text-gray-600">Xoay, lật, thay đổi kích thước theo ý muốn</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Step -->
+    <div *ngIf="currentStep === 'upload'" class="upload-step">
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="step-header text-center mb-8">
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">Tải lên ảnh của bạn</h2>
+          <p class="text-gray-600">Chọn ảnh bạn muốn thêm khung hình</p>
+        </div>
+        
+        <app-image-upload (imageSelected)="onImageSelected($event)"></app-image-upload>
+        
+        <div class="step-navigation mt-8 flex justify-between">
+          <p-button 
+            label="Quay lại" 
+            icon="pi pi-arrow-left"
+            class="p-button-outlined"
+            (onClick)="goBack()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frame Selection Step -->
+    <div *ngIf="currentStep === 'frames'" class="frames-step">
+      <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="step-header text-center mb-8">
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">Chọn khung hình</h2>
+          <p class="text-gray-600">Chọn khung hình phù hợp với ảnh của bạn</p>
+        </div>
+        
+        <app-frame-gallery (frameSelected)="onFrameSelected($event)"></app-frame-gallery>
+        
+        <div class="step-navigation mt-8 flex justify-between">
+          <p-button 
+            label="Quay lại" 
+            icon="pi pi-arrow-left"
+            class="p-button-outlined"
+            (onClick)="goBack()">
+          </p-button>
+          
+          <p-button 
+            label="Bỏ qua" 
+            icon="pi pi-arrow-right"
+            class="p-button-text"
+            (onClick)="skipFrameSelection()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor Step -->
+    <div *ngIf="currentStep === 'editor'" class="editor-step h-screen">
+      <app-image-editor 
+        [uploadedImage]="selectedImage"
+        [selectedFrame]="selectedFrame">
+      </app-image-editor>
+      
+      <div class="editor-navigation fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-4 flex gap-4">
+        <p-button 
+          label="Quay lại" 
+          icon="pi pi-arrow-left"
+          class="p-button-outlined p-button-sm"
+          (onClick)="goBack()">
+        </p-button>
+        
+        <p-button 
+          label="Bắt đầu lại" 
+          icon="pi pi-refresh"
+          class="p-button-outlined p-button-sm"
+          (onClick)="restart()">
+        </p-button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<router-outlet />
+

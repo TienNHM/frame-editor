@@ -1,0 +1,73 @@
+<header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo và tên -->
+      <div class="flex items-center space-x-4">
+        <div class="flex-shrink-0">
+          <h1 class="text-2xl font-bold text-primary-600">
+            <i class="pi pi-image text-primary-500 mr-2"></i>
+            FrameEditor
+          </h1>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="#" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          Trang chủ
+        </a>
+        <a href="#" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          Khung hình
+        </a>
+        <a href="#" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          Công cụ
+        </a>
+        <a href="#" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          Xu hướng
+        </a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center space-x-4">
+        <p-button 
+          label="Tạo ngay" 
+          icon="pi pi-plus"
+          class="p-button-sm"
+          (onClick)="onCreateNew()">
+        </p-button>
+        
+        <p-button 
+          label="Đăng nhập" 
+          icon="pi pi-user"
+          class="p-button-outlined p-button-sm"
+          (onClick)="onLogin()">
+        </p-button>
+
+        <!-- Mobile menu button -->
+        <p-button 
+          icon="pi pi-bars"
+          class="p-button-text p-button-sm md:hidden"
+          (onClick)="toggleMobileMenu()">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="md:hidden" [class.hidden]="!showMobileMenu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
+        <a href="#" class="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium">
+          Trang chủ
+        </a>
+        <a href="#" class="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium">
+          Khung hình
+        </a>
+        <a href="#" class="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium">
+          Công cụ
+        </a>
+        <a href="#" class="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium">
+          Xu hướng
+        </a>
+      </div>
+    </div>
+  </div>
+</header>

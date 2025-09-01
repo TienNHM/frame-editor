@@ -1,0 +1,268 @@
+<div class="image-editor-container">
+  <!-- Editor Header -->
+  <div class="editor-header bg-white border-b border-gray-200 p-4">
+    <div class="flex justify-between items-center">
+      <div class="editor-title">
+        <h2 class="text-xl font-semibold text-gray-800">Chỉnh sửa ảnh</h2>
+        <p class="text-sm text-gray-600">Tùy chỉnh ảnh và khung hình của bạn</p>
+      </div>
+      
+      <div class="editor-actions flex gap-2">
+        <p-button 
+          label="Đặt lại"
+          icon="pi pi-refresh"
+          class="p-button-outlined p-button-sm"
+          (onClick)="resetEditor()"
+          [disabled]="!editorState.isDirty">
+        </p-button>
+        
+        <p-button 
+          label="Tải xuống"
+          icon="pi pi-download"
+          class="p-button-sm"
+          (onClick)="downloadImage()"
+          [disabled]="!canDownload()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor Content -->
+  <div class="editor-content flex flex-col lg:flex-row h-full">
+    <!-- Canvas Area -->
+    <div class="canvas-area flex-1 p-6 bg-gray-50">
+      <div class="canvas-container relative">
+        <!-- Canvas Wrapper -->
+        <div class="canvas-wrapper bg-white rounded-lg shadow-sm p-4 inline-block">
+          <canvas 
+            #editorCanvas
+            class="border border-gray-200 rounded"
+            [width]="canvasWidth"
+            [height]="canvasHeight">
+          </canvas>
+        </div>
+
+        <!-- Canvas Overlay Controls -->
+        <div class="canvas-controls absolute top-2 left-2 flex gap-2">
+          <!-- Zoom Controls -->
+          <div class="zoom-controls bg-white rounded-lg shadow-sm p-2 flex items-center gap-2">
+            <p-button 
+              icon="pi pi-minus"
+              class="p-button-text p-button-sm"
+              (onClick)="zoomOut()"
+              [disabled]="editorState.zoom <= 0.1">
+            </p-button>
+            
+            <span class="text-sm font-medium text-gray-600 min-w-[3rem] text-center">
+              {{ (editorState.zoom * 100) | number:'1.0-0' }}%
+            </span>
+            
+            <p-button 
+              icon="pi pi-plus"
+              class="p-button-text p-button-sm"
+              (onClick)="zoomIn()"
+              [disabled]="editorState.zoom >= 3">
+            </p-button>
+          </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div *ngIf="isProcessing" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
+          <div class="text-center">
+            <div class="loading-spinner w-8 h-8 mx-auto mb-3"></div>
+            <p class="text-gray-600">Đang xử lý...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tools Panel -->
+    <div class="tools-panel w-full lg:w-80 bg-white border-l border-gray-200">
+      <!-- Tool Tabs -->
+      <p-tabs class="h-full">
+        <!-- Transform Tab -->
+        <p-tabpanel header="Biến đổi" leftIcon="pi pi-cog">
+          <div class="transform-tools p-4 space-y-6">
+            <!-- Rotation -->
+            <div class="tool-group">
+              <label class="block text-sm font-medium text-gray-700 mb-3">Xoay ảnh</label>
+              <div class="flex gap-2">
+                <p-button 
+                  icon="pi pi-undo"
+                  class="p-button-outlined p-button-sm flex-1"
+                  (onClick)="rotateImage(-90)"
+                  pTooltip="Xoay trái 90°">
+                </p-button>
+                <p-button 
+                  icon="pi pi-redo"
+                  class="p-button-outlined p-button-sm flex-1"
+                  (onClick)="rotateImage(90)"
+                  pTooltip="Xoay phải 90°">
+                </p-button>
+              </div>
+            </div>
+
+            <!-- Flip -->
+            <div class="tool-group">
+              <label class="block text-sm font-medium text-gray-700 mb-3">Lật ảnh</label>
+              <div class="flex gap-2">
+                <p-button 
+                  label="Lật ngang"
+                  icon="pi pi-arrows-h"
+                  class="p-button-outlined p-button-sm flex-1"
+                  (onClick)="flipImage('horizontal')">
+                </p-button>
+                <p-button 
+                  label="Lật dọc"
+                  icon="pi pi-arrows-v"
+                  class="p-button-outlined p-button-sm flex-1"
+                  (onClick)="flipImage('vertical')">
+                </p-button>
+              </div>
+            </div>
+
+            <!-- Position -->
+            <div class="tool-group" *ngIf="editorState.isEditing">
+              <label class="block text-sm font-medium text-gray-700 mb-3">Vị trí</label>
+              <div class="grid grid-cols-3 gap-2">
+                <p-button 
+                  icon="pi pi-arrow-up-left"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(-10, -10)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-up"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(0, -10)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-up-right"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(10, -10)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-left"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(-10, 0)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-stop"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="centerObject()">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-right"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(10, 0)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-down-left"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(-10, 10)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-down"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(0, 10)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-arrow-down-right"
+                  class="p-button-outlined p-button-sm"
+                  (onClick)="moveObject(10, 10)">
+                </p-button>
+              </div>
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <!-- Export Tab -->
+        <p-tabpanel header="Xuất ảnh" leftIcon="pi pi-download">
+          <div class="export-tools p-4 space-y-6">
+            <!-- Format Selection -->
+            <div class="tool-group">
+              <label class="block text-sm font-medium text-gray-700 mb-3">Định dạng</label>
+              <p-select 
+                [options]="formatOptions"
+                [(ngModel)]="exportOptions.format"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full">
+              </p-select>
+            </div>
+
+            <!-- Quality -->
+            <div class="tool-group" *ngIf="exportOptions.format === 'jpeg'">
+              <label class="block text-sm font-medium text-gray-700 mb-3">
+                Chất lượng: {{ (exportOptions.quality * 100) | number:'1.0-0' }}%
+              </label>
+              <p-slider 
+                [(ngModel)]="exportOptions.quality"
+                [min]="0.1"
+                [max]="1"
+                [step]="0.1"
+                class="w-full">
+              </p-slider>
+            </div>
+
+            <!-- Size Options -->
+            <div class="tool-group">
+              <label class="block text-sm font-medium text-gray-700 mb-3">Kích thước</label>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <p-radioButton 
+                    name="sizeOption" 
+                    value="original" 
+                    [(ngModel)]="sizeOption">
+                  </p-radioButton>
+                  <label class="text-sm text-gray-700">Kích thước gốc</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-radioButton 
+                    name="sizeOption" 
+                    value="custom" 
+                    [(ngModel)]="sizeOption">
+                  </p-radioButton>
+                  <label class="text-sm text-gray-700">Tùy chỉnh</label>
+                </div>
+              </div>
+              
+              <div *ngIf="sizeOption === 'custom'" class="mt-3 grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">Rộng (px)</label>
+                  <input 
+                    type="number" 
+                    pInputText 
+                    [(ngModel)]="customWidth"
+                    class="w-full text-sm"
+                    min="100"
+                    max="4000">
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">Cao (px)</label>
+                  <input 
+                    type="number" 
+                    pInputText 
+                    [(ngModel)]="customHeight"
+                    class="w-full text-sm"
+                    min="100"
+                    max="4000">
+                </div>
+              </div>
+            </div>
+
+            <!-- Download Button -->
+            <div class="tool-group">
+              <p-button 
+                label="Tải xuống"
+                icon="pi pi-download"
+                class="w-full"
+                (onClick)="downloadImage()"
+                [disabled]="!canDownload()">
+              </p-button>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabs>
+    </div>
+  </div>
+</div>
