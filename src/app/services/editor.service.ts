@@ -81,6 +81,13 @@ export class EditorService {
 
         this.canvas.add(img);
         this.canvas.setActiveObject(img);
+
+        // Nếu đã có frame, điều chỉnh ảnh để fit
+        const hasFrame = this.canvas.getObjects().some(obj => obj.get('isFrame'));
+        if (hasFrame) {
+          this.adjustImageToFitFrame();
+        }
+
         this.canvas.renderAll();
 
         this.updateEditorState({ 
@@ -93,7 +100,7 @@ export class EditorService {
     });
   }
 
-  addFrameToCanvas(frameUrl: string): Promise<void> {
+    addFrameToCanvas(frameUrl: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.canvas) {
         reject(new Error('Canvas chưa được khởi tạo'));
@@ -118,18 +125,22 @@ export class EditorService {
         // Xóa frame cũ nếu có
         const existingFrames = this.canvas.getObjects().filter(obj => obj.get('isFrame'));
         existingFrames.forEach(frame => this.canvas!.remove(frame));
-        
+
         // Đánh dấu object này là frame
         frame.set('isFrame', true);
-        
+
         // Thêm frame và đưa lên trên cùng (trên ảnh)
         this.canvas.add(frame);
         this.canvas.bringObjectToFront(frame);
+
+        // Điều chỉnh ảnh user để nằm trong vùng trống của frame
+        this.adjustImageToFitFrame();
+
         this.canvas.renderAll();
 
-        this.updateEditorState({ 
-          selectedFrame: frameUrl, 
-          isDirty: true 
+        this.updateEditorState({
+          selectedFrame: frameUrl,
+          isDirty: true
         });
 
         resolve();
@@ -187,6 +198,80 @@ export class EditorService {
       isEditing: false,
       isDirty: false
     });
+  }
+
+  resetImagePosition(): void {
+    if (!this.canvas) return;
+
+    const userImage = this.canvas.getObjects().find(obj => !obj.get('isFrame'));
+    if (!userImage) return;
+
+    const hasFrame = this.canvas.getObjects().some(obj => obj.get('isFrame'));
+    
+    if (hasFrame) {
+      // Nếu có frame, fit ảnh vào vùng an toàn
+      this.adjustImageToFitFrame();
+    } else {
+      // Nếu không có frame, reset về center với scale phù hợp
+      const canvasWidth = this.canvas.getWidth();
+      const canvasHeight = this.canvas.getHeight();
+      const imageWidth = userImage.width || 1;
+      const imageHeight = userImage.height || 1;
+
+      const scaleX = canvasWidth / imageWidth;
+      const scaleY = canvasHeight / imageHeight;
+      const scale = Math.min(scaleX, scaleY);
+
+      userImage.set({
+        left: canvasWidth / 2,
+        top: canvasHeight / 2,
+        scaleX: scale,
+        scaleY: scale,
+        originX: 'center',
+        originY: 'center'
+      });
+    }
+
+    this.canvas.renderAll();
+    this.updateEditorState({ isDirty: true });
+  }
+
+  private adjustImageToFitFrame(): void {
+    if (!this.canvas) return;
+
+    // Tìm ảnh user (không phải frame)
+    const userImage = this.canvas.getObjects().find(obj => !obj.get('isFrame'));
+    if (!userImage) return;
+
+    // Định nghĩa vùng an toàn cho ảnh (tránh frame border)
+    const canvasWidth = this.canvas.getWidth();
+    const canvasHeight = this.canvas.getHeight();
+    
+    // Giả sử frame có border khoảng 15% từ mỗi cạnh
+    const borderPercent = 0.15;
+    const safeAreaWidth = canvasWidth * (1 - borderPercent * 2);
+    const safeAreaHeight = canvasHeight * (1 - borderPercent * 2);
+    const safeAreaLeft = canvasWidth * borderPercent;
+    const safeAreaTop = canvasHeight * borderPercent;
+
+    // Tính toán scale để ảnh vừa với vùng an toàn
+    const imageWidth = userImage.width || 1;
+    const imageHeight = userImage.height || 1;
+    
+    const scaleX = safeAreaWidth / imageWidth;
+    const scaleY = safeAreaHeight / imageHeight;
+    const scale = Math.min(scaleX, scaleY); // Giữ tỷ lệ ảnh
+
+    // Áp dụng scale và vị trí
+    userImage.set({
+      scaleX: scale,
+      scaleY: scale,
+      left: safeAreaLeft + (safeAreaWidth - imageWidth * scale) / 2,
+      top: safeAreaTop + (safeAreaHeight - imageHeight * scale) / 2
+    });
+
+    // Đảm bảo ảnh ở dưới frame
+    this.canvas.sendObjectToBack(userImage);
   }
 
   exportCanvas(options: ExportOptions = { format: 'png', quality: 1 }): string {

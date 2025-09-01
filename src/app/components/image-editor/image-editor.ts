@@ -172,6 +172,10 @@ export class ImageEditor implements AfterViewInit, OnDestroy {
     }
   }
 
+  resetImagePosition(): void {
+    this.editorService.resetImagePosition();
+  }
+
   // Zoom operations
   zoomIn(): void {
     const newZoom = Math.min(this.editorState.zoom + 0.1, 3);
